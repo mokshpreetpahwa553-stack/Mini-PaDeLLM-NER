@@ -1,0 +1,14 @@
+torch
+transformers
+datasets
+accelerate
+peft
+bitsandbytes
+fastapi
+uvicorn
+pydantic
+pyyaml
+pandas
+scikit-learn
+seqeval
+pytest

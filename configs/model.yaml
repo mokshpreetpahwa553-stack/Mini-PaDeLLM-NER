@@ -1,0 +1,3 @@
+base_model: "TBD"
+fine_tuning_method: "QLoRA"
+max_new_tokens: 512

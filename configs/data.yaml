@@ -1,0 +1,5 @@
+dataset: "conll2003"
+language: "english"
+train_size: 1000
+validation_size: 200
+test_size: "full_or_sampled"
