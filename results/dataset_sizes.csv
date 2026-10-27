@@ -1,0 +1,4 @@
+format,num_examples,input_tokens_mean,input_tokens_min,input_tokens_max,output_tokens_mean,output_tokens_min,output_tokens_max
+padellm,62878,15.492207131270078,1,113,1.1676898120169217,1,10
+autoreg_struct,14041,14.501887329962253,1,113,12.707285805854283,11,69
+onestep,56164,14.501887329962253,1,113,1.4268214514635709,1,59
