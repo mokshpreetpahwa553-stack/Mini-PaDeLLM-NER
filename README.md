@@ -71,3 +71,90 @@ I run the tests with:
 python -m pytest tests/test_entity_metrics.py -v
 python -m pytest tests/test_data_evaluation.py -v
 ```
+
+## Training
+
+I fine-tune the model using LoRA. It trains only a small number of adapter
+parameters instead of updating the whole model.
+
+I use the PaDeLLM data format for this overfit test. Each training example asks
+the model to find one specific mention:
+
+
+Apple hired John Smith in Dublin .
+Find the 1st ORG mention.
+
+The target output is:
+Apple
+
+
+### Loss masking
+
+I calculate loss only on the output tokens.
+
+The prompt contains the sentence and the task, for example:
+
+
+Apple hired John Smith in Dublin .
+Find the 1st ORG mention.
+
+I set the labels for these prompt tokens to `-100`, so they do not contribute
+to the loss. Only the target mention and the EOS token contribute to the loss.
+
+For the example above, the supervised output is:
+
+Apple</s>
+
+
+### Overfit test
+
+Before training on the full dataset, I tested the training script on CPU using
+the first 20 sentences from the dataset.
+
+I built 20 PaDeLLM training examples and trained the model to memorise them.
+
+The purpose of this test is to check that:
+
+- the LoRA model loads correctly;
+- the loss is calculated only on output tokens;
+- the loss decreases during training;
+- checkpoints are saved;
+- training can resume from a checkpoint;
+- the trained model can generate the expected target outputs.
+
+### Commands
+
+Train on 20 examples:
+
+```bash
+python -m src.training.train_lora --num_epochs 20
+```
+
+Resume from a checkpoint:
+
+```bash
+python -m src.training.train_lora --num_epochs 20 --resume_from_checkpoint results/overfit_test/checkpoint-400
+```
+
+### Generation check
+
+After training, I check 20 generated examples against their expected outputs.
+
+For each example, I print:
+
+- the task;
+- the expected output;
+- the generated output;
+- whether they match exactly.
+
+The overfit test is successful when the training loss becomes close to zero and
+the model reproduces the target outputs for the training examples.
+
+### Result
+
+After training on the first 20 CoNLL sentences, the overfit test achieved:
+
+Overfit test: 20/20 exact matches
+
+This confirms that the training pipeline, loss masking, LoRA setup,
+checkpointing, and generation evaluation all work correctly.
