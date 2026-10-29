@@ -45,6 +45,7 @@ from peft import LoraConfig, get_peft_model
 from torch.utils.data import Dataset
 from src.data.padellm_data_builder import build_padellm_examples
 from datasets import load_dataset
+import time
 
 def load_model_and_tokenizer(model_name):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -127,7 +128,7 @@ class OverfitDataset(Dataset):
 
 
 #we fine tune LoRA with 20 examples
-def create_overfit_examples(raw_examples,tokenizer,num_examples=20):
+def create_overfit_examples(raw_examples,tokenizer,num_examples):
     training_examples=[]    
 
     for sentence_id,raw_example in enumerate(raw_examples):
@@ -259,6 +260,9 @@ def main():
         default=20,
     )
 
+    parser.add_argument("--num_examples", type=int, default=None)
+    parser.add_argument("--max_steps", type=int, default=-1)
+
 
     args=parser.parse_args()
     model, tokenizer = load_model_and_tokenizer(args.model_name)
@@ -299,11 +303,15 @@ def main():
     '''
 
     
-    raw_examples =loadDataset()[:20] #we use first 20 sentences only
+    raw_examples =loadDataset() 
     training_examples = create_overfit_examples(
         raw_examples=raw_examples,
         tokenizer=tokenizer,
+        num_examples=args.num_examples if args.num_examples is not None else 20,
     )
+
+    if args.num_examples is not None:
+        training_examples = training_examples[:args.num_examples]
 
     dataset = OverfitDataset(training_examples)
     #below is test to check building of training examples before connecting to main dataset
@@ -331,6 +339,7 @@ def main():
     report_to=[],
     remove_unused_columns=False,
     dataloader_num_workers=0,
+    max_steps=args.max_steps,
 )
 
     trainer = Trainer(
@@ -339,9 +348,23 @@ def main():
         train_dataset=dataset,
     )
 
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
+    start_time = time.time()
+
     trainer.train(
-    resume_from_checkpoint=args.resume_from_checkpoint
+        resume_from_checkpoint=args.resume_from_checkpoint
     )
+
+    training_time_seconds = time.time() - start_time
+
+    print(f"Training time: {training_time_seconds:.1f} seconds")
+    print(f"Total training steps: {trainer.state.global_step}")
+
+    if torch.cuda.is_available():
+        peak_memory_gb = torch.cuda.max_memory_allocated() / 1024**3
+        print(f"Peak GPU memory: {peak_memory_gb:.2f} GB")
 
     trainer.save_model(args.output_dir)
     tokenizer.save_pretrained(args.output_dir)
@@ -349,14 +372,14 @@ def main():
     print("Training finished.")
     print(f"Model saved to: {args.output_dir}")
 
-    correct, total = test_overfit_examples(
+    '''correct, total = test_overfit_examples(
         model=model,
         tokenizer=tokenizer,
         raw_examples=raw_examples,
         num_examples=20,
     )
 
-    print(f"Correct: {correct}\nTotal: {total}")
+    print(f"Correct: {correct}\nTotal: {total}")'''
 
 if __name__=="__main__":
     main()

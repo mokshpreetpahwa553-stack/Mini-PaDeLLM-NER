@@ -158,3 +158,62 @@ Overfit test: 20/20 exact matches
 
 This confirms that the training pipeline, loss masking, LoRA setup,
 checkpointing, and generation evaluation all work correctly.
+
+
+## Compute budget
+
+I measured the compute budget for AutoReg-Struct by training on 1% of the
+AutoReg-Struct training data.
+
+I used 140 examples, which is approximately 1% of the CoNLL-2003 training
+sentences. Since my AutoReg-Struct builder creates one training example per
+sentence, 140 examples is also 140 training steps for one epoch.
+
+I trained the model for one epoch on a Google Colab T4 GPU.
+
+Setting : Value
+
+Base model : TinyLlama-1.1B-Chat-v1.0  
+Fine-tuning method : LoRA  
+LoRA rank : 8  
+LoRA alpha : 16  
+Target modules : q_proj, v_proj  
+Sequence cap : 256 tokens  
+Batch size : 1  
+Gradient accumulation : 1  
+Budget-test examples : 140  
+Epochs in budget test : 1  
+Training steps : 140  
+Training time : 21.4 seconds  
+Speed : 6.65 steps per second  
+Seconds per step : 0.153  
+Peak GPU memory : 4.62 GB  
+GPU used : Google Colab T4, 15 GB GPU RAM  
+
+The full CoNLL-2003 training set contains approximately 14,000 sentences.
+Because AutoReg-Struct creates one example per sentence, a full training epoch
+would contain approximately 14,000 training steps.
+
+Using the measured speed, one full epoch should take approximately:
+
+14,000 × 0.153 = 2,142 seconds
+
+This is about 36 minutes per epoch.
+
+Because one epoch is expected to take less than one hour, I can train for two
+epochs and still keep the full run within a few GPU-hours. Two epochs would
+take approximately 72 minutes.
+
+The peak GPU memory was only 4.62 GB, which is well below the 15 GB available
+on the Colab T4 GPU. This means the chosen model size, sequence cap, and batch
+size are suitable for the available hardware.
+
+Full-run setting : Chosen value
+
+Training examples : Full AutoReg-Struct training set, approximately 14,000  
+Epochs : 2  
+Sequence cap : 256 tokens  
+Batch size : 1  
+Gradient accumulation : 1  
+Estimated training time : About 1.2 hours  
+Fits available GPU quota? : Yes  
