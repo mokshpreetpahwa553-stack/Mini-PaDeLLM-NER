@@ -217,3 +217,87 @@ Batch size : 1
 Gradient accumulation : 1  
 Estimated training time : About 1.2 hours  
 Fits available GPU quota? : Yes  
+
+
+
+## PaDeLLM Count Prediction
+
+PaDeLLM counter predicts the number of mentions for each entity label
+before generating the actual mentions.
+
+For every CoNLL-2003 sentence, the model receives four separate prompts:
+
+- Count the number of ORG mentions
+- Count the number of PER mentions
+- Count the number of MISC mentions
+- Count the number of LOC mentions
+
+Each prompt has a single integer target, such as `0`, `1`, or `2`.
+This is separate from the AutoRegStruct baseline and from PaDeLLM Step 2
+mention generation.
+
+## Data
+
+The count-prediction examples are created from CoNLL-2003 BIO tags.
+
+For one sentence, the data builder creates four examples: one for each
+entity label. The number of mentions is calculated from BIO tags, where
+`B-LABEL` starts a mention and following `I-LABEL` tokens continue the
+same mention.
+
+For the overfit test, I used 8 sentences from the CoNLL-2003 training
+split. Since each sentence produces four count-prediction examples, this
+gives 32 training examples.
+
+## Training
+
+I fine-tuned TinyLlama/TinyLlama-1.1B-Chat-v1.0 using LoRA.
+
+- LoRA rank: 8
+- LoRA alpha: 16
+- LoRA dropout: 0.05
+- Target modules: `q_proj` and `v_proj`
+- Bias: none
+- Task type: causal language modeling
+- Batch size: 1
+- Gradient accumulation: 1
+- Learning rate: 1e-4
+- Maximum steps: 600
+- Number of overfit sentences: 8
+- Number of training examples: 32
+
+Prompt tokens were masked with `-100`, so the model was trained only to
+predict the integer count and EOS token.
+
+## Evaluation
+
+After training, I evaluated the model on the same 8 overfit sentences.
+The evaluation creates four prompts per sentence, batches them, and
+compares each generated output with the gold count from the BIO tags.
+
+An output is counted as correct only if it is exactly an integer and
+matches the gold count. Outputs with extra text, empty strings, or
+non-integer responses are marked as malformed.
+
+## Commands
+
+overfit 8 sentences
+```bash
+python -m src.training.padellm_counter_overfit --max_steps 600 --num_sentences 8
+```
+
+Evaluation
+```bash
+python -m src.inference.evaluate_padellm_counter_overfit --adapter_dir results/padellm_counter_overfit --num_sentences 8 --batch_size 4
+```
+
+## Result
+
+The PaDeLLM count-prediction model achieved:
+
+- Correct predictions: 32/32
+- Exact-match accuracy: 100.00%
+- Malformed outputs: 0
+- Empty outputs: 0
+This confirms that PaDeLLM can predict per-label mention counts
+in a batched setting.

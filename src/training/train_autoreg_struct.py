@@ -1,7 +1,5 @@
 #TRAINING AUTOREG STRUCT
 """
-This module loads a pretrained causal language model and prepares it for
-LoRA fine-tuning.
 
 - argparse allows the user to choose a model from the command line using
   --model_name. If no model is given, TinyLlama is used by default.
@@ -34,14 +32,11 @@ LoRA fine-tuning.
 - get_peft_model wraps the base model with LoRA so that only the adapter
   parameters are trainable.
 
-This module only loads and prepares the model and tokenizer. It does not
-yet train the model, compute loss, save checkpoints, or generate NER
-predictions.
 """
 
 import argparse
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer,Trainer,TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer,Trainer,TrainingArguments,DataCollatorForSeq2Seq
 from peft import LoraConfig, get_peft_model
 from torch.utils.data import Dataset
 from src.data.autoreg_struct_data_builder import build_autoreg_struct_examples
@@ -117,7 +112,7 @@ def build_training_examples(tokenizer,input_text,task_text,output_text,max_lengt
 
 
 
-class OverfitDataset(Dataset):
+class TokenizedCausalLMDataset(Dataset):
     def __init__(self,examples):
         self.examples=examples
 
@@ -128,8 +123,7 @@ class OverfitDataset(Dataset):
         return self.examples[index]
 
 
-#we fine tune LoRA with 20 examples
-def create_overfit_examples(raw_examples,tokenizer,num_examples):
+def create_examples_for_training(raw_examples,tokenizer):
     training_examples=[]    
 
     for sentence_id,raw_example in enumerate(raw_examples):
@@ -140,8 +134,6 @@ def create_overfit_examples(raw_examples,tokenizer,num_examples):
             training_example = build_training_examples(tokenizer=tokenizer, input_text = built_example["input"],task_text=built_example["task"],output_text=built_example["output"])
             training_examples.append(training_example)
 
-            if len(training_examples)==num_examples:
-                return training_examples
 
     return training_examples
 
@@ -166,76 +158,6 @@ def loadDataset():
 
     return output
 
-# Check whether the model can reproduce the exact target
-# for the same examples used in the CPU overfit test.
-def test_overfit_examples(model, tokenizer, raw_examples, num_examples=20):
-
-    model.eval()
-
-    correct = 0
-    total = 0
-
-    # Use the same first examples and same question rotation as training.
-    for sentence_id, raw_example in enumerate(raw_examples):
-        if total == num_examples:
-            break
-
-
-        built_examples = build_padellm_examples(
-            tokens=raw_example["tokens"],
-            bio_tags=raw_example["bio_tags"],
-            sentence_id=sentence_id,
-        )
-
-        for built_example in built_examples:
-            if total == num_examples:
-                break
-
-            # Rebuild the exact same prompt format used during training.
-            prompt_text = f"{built_example['input']}\n{built_example['task']}"
-
-            inputs = tokenizer(
-                prompt_text,
-                return_tensors="pt",
-                truncation=True,
-                max_length=256,
-            )
-
-            with torch.no_grad():
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=30,
-                    do_sample=False,
-                )
-
-            # Keep only the newly generated tokens, not the prompt.
-            prompt_length = inputs["input_ids"].shape[1]
-            generated_ids = outputs[0][prompt_length:]
-
-            generated_text = tokenizer.decode(
-                generated_ids,
-                skip_special_tokens=True,
-            ).strip()
-
-            expected_text = built_example["output"].strip()
-            if expected_text=="<eos>":
-                is_correct = generated_text == ""
-            else:
-                is_correct = generated_text == expected_text
-                
-            if is_correct:
-                correct += 1
-            total += 1
-
-            print(f"\nExample {total}")
-            print(f"Question: {built_example['task']}")
-            print(f"Expected: {expected_text}")
-            print(f"Generated: {generated_text}")
-            print(f"Correct: {is_correct}")
-
-    print(f"\nOverfit test: {correct}/{total} exact matches")
-
-    return correct, total
 
 def main():
     parser=argparse.ArgumentParser()
@@ -252,16 +174,15 @@ def main():
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="results/overfit_test",
+        default="results/training_autoreg_struct",
     )
 
     parser.add_argument(
         "--num_epochs",
         type=int,
-        default=20,
+        default=2,
     )
-
-    parser.add_argument("--num_examples", type=int, default=None)
+  
     parser.add_argument("--max_steps", type=int, default=-1)
 
 
@@ -270,73 +191,26 @@ def main():
 
 
     print("Model and tokenizer loaded successfully.")
-    #below is a little example show loss masking
-    '''
-    test_example = build_training_examples(
-        tokenizer=tokenizer,
-        input_text="Apple hired John Smith in Dublin .",
-        task_text="Find the 1st ORG mention.",
-        output_text="Apple",
-        max_length=256
-    )
 
-    
-    
-    print("Number of input ids:", len(test_example["input_ids"]))
-    print("Number of labels:", len(test_example["labels"]))
-
-    print("Input ids:")
-    print(test_example["input_ids"])
-
-    print("Labels:")
-    print(test_example["labels"])
-
-    print("Decoded full sequence:")
-    print(tokenizer.decode(test_example["input_ids"]))
-
-    print("Decoded supervised output:")
-    supervised_ids = [
-        token_id
-        for token_id in test_example["labels"]
-        if token_id != -100
-    ]
-    print(tokenizer.decode(supervised_ids))
-    '''
 
     
     raw_examples =loadDataset() 
-    training_examples = create_overfit_examples(
-        raw_examples=raw_examples,
-        tokenizer=tokenizer,
-        num_examples=args.num_examples if args.num_examples is not None else 20,
-    )
+    training_examples = create_examples_for_training(raw_examples,tokenizer)
+    dataset = TokenizedCausalLMDataset(training_examples)
 
-    if args.num_examples is not None:
-        training_examples = training_examples[:args.num_examples]
-
-    dataset = OverfitDataset(training_examples)
-    #below is test to check building of training examples before connecting to main dataset
-    '''
-    print("Number of training examples:", dataset.__len__())
-
-    first_example = dataset.__getitem__(0)
-
-    print("First example input:")
-    print(tokenizer.decode(first_example["input_ids"]))
-
-    print("First example supervised output:")
-    supervised_ids = [token_id for token_id in first_example["labels"] if token_id != -100] #this will keep all supervised token ids- ids that account for loss amking (ids that are not -100)
-    print(tokenizer.decode(supervised_ids))'''
-
+    #for padding
+    data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer,model=model,padding=True,label_pad_token_id=-100,return_tensors="pt")
+   
     training_args = TrainingArguments(
     output_dir=args.output_dir,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=1,
     num_train_epochs=args.num_epochs,
     learning_rate=1e-4,
-    logging_steps=1,
-    save_strategy="epoch",
-    save_total_limit=2,
+    logging_steps=100,
+    save_strategy="steps",
+    save_steps=500,
+    save_total_limit=3,
     report_to=[],
     remove_unused_columns=False,
     dataloader_num_workers=0,
@@ -347,6 +221,7 @@ def main():
         model=model,
         args=training_args,
         train_dataset=dataset,
+        data_collator=data_collator
     )
 
     if torch.cuda.is_available():
