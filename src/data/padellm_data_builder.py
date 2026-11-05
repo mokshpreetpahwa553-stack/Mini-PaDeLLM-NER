@@ -34,7 +34,8 @@ Input:  Apple hired John Smith in Dublin .
 Task:   Find the 1st MISC mention.
 Output: <eos>
 
-number of PaDeLLM examples =number of gold mentions+ number of labels with zero mentions in that sentence
+number of PaDeLLM examples =number of gold mentions
+If a label has zero mentions, no Step 2 example is created for them
 """
 
 def get_ordinal(index):
@@ -63,17 +64,9 @@ def build_padellm_examples(tokens, bio_tags,sentence_id):
         dic["output"] = gold_mention[1]
         dic["format"] = "padellm"
         dic["sentence_id"]=sentence_id
-
+        dic["label"]=label
+        dic["mention_index"]=ner_labels_and_counts[label]
         output.append(dic)
 
-    for label,count in ner_labels_and_counts.items():
-        if count==0:
-            dic={}
-            dic["input"]=sentence
-            dic["task"] = f"Find the 1st {label} mention."
-            dic["output"] = "<eos>"
-            dic["format"]="padellm"
-            dic["sentence_id"]=sentence_id
-            output.append(dic)
 
     return output

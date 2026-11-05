@@ -301,3 +301,77 @@ The PaDeLLM count-prediction model achieved:
 - Empty outputs: 0
 This confirms that PaDeLLM can predict per-label mention counts
 in a batched setting.
+
+## PaDeLLM End-to-End Inference
+
+PaDeLLM uses two steps.
+
+In Step 1, the count prediction model predicts how many mentions
+there are for each entity label in a sentence.
+
+In Step 2, the mention generation model generates each mention
+using a separate prompt for each predicted mention.
+
+For example, if the count model predicts:
+ORG : 1  
+PER : 0  
+MISC : 2  
+LOC : 0  
+
+then the mention model receives prompts for:
+
+ORG mention 1  
+MISC mention 1  
+MISC mention 2  
+
+The outputs from Step 2 are collected as the final predicted
+mentions for the sentence.
+
+I built an end-to-end inference script that combines both steps.
+
+The script:
+
+1. Loads TinyLlama.
+2. Loads the count-prediction LoRA adapter.
+3. Loads the mention-generation LoRA adapter.
+4. Loads validation sentences.
+5. Creates four count-prediction prompts for each sentence.
+6. Runs the count model.
+7. Uses the predicted counts to create mention prompts.
+8. Runs the mention model.
+9. Saves the predicted mentions to a JSON file.
+
+I ran the end-to-end pipeline on 20 validation sentences.
+
+I used the following settings:
+
+Model : TinyLlama-1.1B-Chat-v1.0  
+Count adapter : results/padellm_counter_overfit  
+Mention adapter : results/padellm_data_builder_overfit  
+Number of validation sentences : 20  
+Batch size : 4  
+Maximum new tokens : 15  
+Output file : results/padellm_end_to_end_overfit_predictions.json  
+
+The pipeline saved 41 mention predictions.
+
+The number of predictions is larger than the number of sentences
+because each sentence can produce multiple mention-generation
+prompts. 
+
+The end-to-end pipeline works correctly. It connects count prediction,
+mention prompt construction, mention generation, and JSON output.
+
+However, because both LoRA adapters were trained only on a small
+overfit set, the generated mentions on unseen validation sentences
+are often incomplete or malformed. For example, some outputs contain
+sentence fragments instead of clean entity mentions.
+
+This is expected at this stage. The purpose of this run was to test
+that the full PaDeLLM pipeline works from count prediction to final
+mention generation.
+
+The next step is to train the count-prediction and mention-generation
+models on a larger subset of the CoNLL-2003 training data. After that,
+the end-to-end pipeline can be evaluated using entity-level precision,
+recall, and F1.

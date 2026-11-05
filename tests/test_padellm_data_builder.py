@@ -6,7 +6,7 @@ def test_padellm_data_builder_apple_sentence():
 
     examples = build_padellm_examples(tokens, bio_tags, sentence_id=0)
 
-    assert len(examples)==4
+    assert len(examples)==3
 
     assert examples[0]["task"]=="Find the 1st ORG mention."
     assert examples[0]["output"]=="Apple"
@@ -17,8 +17,6 @@ def test_padellm_data_builder_apple_sentence():
     assert examples[2]["task"]=="Find the 1st LOC mention."
     assert examples[2]["output"]=="Dublin"
 
-    assert examples[3]["task"]=="Find the 1st MISC mention."
-    assert examples[3]["output"]=="<eos>"
 
 
 def test_padellm_data_builder_with_two_per_mentions():
@@ -27,7 +25,7 @@ def test_padellm_data_builder_with_two_per_mentions():
 
     examples = build_padellm_examples(tokens, bio_tags, sentence_id=1)
 
-    assert len(examples)==5
+    assert len(examples)==3
 
     assert examples[0]["task"]=="Find the 1st PER mention."
     assert examples[0]["output"]=="Alice"
@@ -38,8 +36,10 @@ def test_padellm_data_builder_with_two_per_mentions():
     assert examples[2]["task"]=="Find the 1st LOC mention."
     assert examples[2]["output"]=="Paris"
 
-    assert examples[3]["task"]=="Find the 1st ORG mention."
-    assert examples[3]["output"]=="<eos>"
+def test_padellm_data_builder_with_no_mentions():
+    tokens =["The", "company", "grew", "."]
+    bio_tags= ["O", "O", "O", "O"]
 
-    assert examples[4]["task"]=="Find the 1st MISC mention."
-    assert examples[4]["output"]=="<eos>"
+    examples=build_padellm_examples(tokens, bio_tags, sentence_id=2)
+
+    assert examples==[]
