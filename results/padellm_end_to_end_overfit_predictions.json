@@ -2,329 +2,316 @@
   {
     "sentence_id": 0,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of German call to boycott British lamb",
-    "raw_output": "of German call to boycott British lamb",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 0,
-    "label": "MISC",
+    "probability": 0.0066132878581346135,
     "mention_index": 1,
-    "mention": "of German call to boycott British lamb in The Guardian",
-    "raw_output": "of German call to boycott British lamb in The Guardian",
+    "prediction": "of German call to boycott British lamb",
     "status": "valid"
   },
   {
     "sentence_id": 0,
     "label": "MISC",
-    "mention_index": 2,
+    "mention": "of German call to boycott British lamb in The Guardian",
+    "probability": 0.25349605467026004,
+    "mention_index": 1,
+    "prediction": "of German call to boycott British lamb in The Guardian",
+    "status": "valid"
+  },
+  {
+    "sentence_id": 0,
+    "label": "MISC",
     "mention": "of German call to boycott British lamb in The Guardian UK",
-    "raw_output": "of German call to boycott British lamb in The Guardian UK",
+    "probability": 0.8016826907829887,
+    "mention_index": 2,
+    "prediction": "of German call to boycott British lamb in The Guardian UK",
     "status": "valid"
   },
   {
     "sentence_id": 1,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of Peter Blackburn",
-    "raw_output": "of Peter Blackburn",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 2,
-    "label": "LOC",
+    "probability": 0.9742115379200361,
     "mention_index": 1,
-    "mention": null,
-    "raw_output": "",
-    "status": "empty"
-  },
-  {
-    "sentence_id": 3,
-    "label": "ORG",
-    "mention_index": 1,
-    "mention": "of The European Commission in British lamb until scientists determine whether mad cow",
-    "raw_output": "of The European Commission in British lamb until scientists determine whether mad cow",
+    "prediction": "of Peter Blackburn",
     "status": "valid"
   },
   {
     "sentence_id": 3,
     "label": "MISC",
-    "mention_index": 1,
     "mention": "of The European Commission in British lamb until scientists determine whether mad cow",
-    "raw_output": "of The European Commission in British lamb until scientists determine whether mad cow",
+    "probability": 0.8780379353492772,
+    "mention_index": 1,
+    "prediction": "of The European Commission in British lamb until scientists determine whether mad cow",
     "status": "valid"
   },
   {
     "sentence_id": 3,
     "label": "MISC",
-    "mention_index": 2,
     "mention": "for \"mad cow disease\" in European Commission",
-    "raw_output": "for \"mad cow disease\" in European Commission",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 4,
-    "label": "ORG",
-    "mention_index": 1,
-    "mention": "of Werner Zwingmann in European Union 's veterinary committee",
-    "raw_output": "of Werner Zwingmann in European Union 's veterinary committee",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 4,
-    "label": "PER",
-    "mention_index": 1,
-    "mention": "of Werner Zwingmann in Europe Union 's veterinary committee",
-    "raw_output": "of Werner Zwingmann in Europe Union 's veterinary committee",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 4,
-    "label": "LOC",
-    "mention_index": 1,
-    "mention": "of Werner Zwingmann in European Union 's veterinary committee",
-    "raw_output": "of Werner Zwingmann in European Union 's veterinary committee",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 4,
-    "label": "LOC",
+    "probability": 0.0020464944158139413,
     "mention_index": 2,
+    "prediction": "for \"mad cow disease\" in European Commission",
+    "status": "valid"
+  },
+  {
+    "sentence_id": 4,
+    "label": "LOC",
     "mention": "of Werner Zwingmann in European Union 's veterinary committee",
-    "raw_output": "of Werner Zwingmann in European Union 's veterinary committee",
+    "probability": 0.9872396132873759,
+    "mention_index": 1,
+    "prediction": "of Werner Zwingmann in European Union 's veterinary committee",
+    "status": "valid"
+  },
+  {
+    "sentence_id": 4,
+    "label": "PER",
+    "mention": "of Werner Zwingmann in Europe Union 's veterinary committee",
+    "probability": 0.893894406618138,
+    "mention_index": 1,
+    "prediction": "of Werner Zwingmann in Europe Union 's veterinary committee",
     "status": "valid"
   },
   {
     "sentence_id": 5,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "for \" We do n't support any such recommendation because we do n",
-    "raw_output": "for \" We do n't support any such recommendation because we do n",
+    "probability": 0.8785183275125356,
+    "mention_index": 1,
+    "prediction": "for \" We do n't support any such recommendation because we do n",
     "status": "valid"
   },
   {
     "sentence_id": 5,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of \" We do n't support any such recommendation because we do n",
-    "raw_output": "of \" We do n't support any such recommendation because we do n",
+    "probability": 0.9579534329559988,
+    "mention_index": 1,
+    "prediction": "of \" We do n't support any such recommendation because we do n",
     "status": "valid"
   },
   {
     "sentence_id": 6,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of European Union in Scientific Study",
-    "raw_output": "of European Union in Scientific Study",
+    "probability": 0.6818766756394441,
+    "mention_index": 1,
+    "prediction": "of European Union in Scientific Study",
     "status": "valid"
   },
   {
     "sentence_id": 7,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of Franz Fischler in He said",
-    "raw_output": "of Franz Fischler in He said",
+    "probability": 0.0007411794186578932,
+    "mention_index": 1,
+    "prediction": "of Franz Fischler in He said",
     "status": "valid"
   },
   {
     "sentence_id": 7,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of Franz Fischler He said a proposal last month by EU Farm Commission",
-    "raw_output": "of Franz Fischler He said a proposal last month by EU Farm Commission",
+    "probability": 0.935787310806717,
+    "mention_index": 1,
+    "prediction": "of Franz Fischler He said a proposal last month by EU Farm Commission",
     "status": "valid"
   },
   {
     "sentence_id": 8,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of Fischler, EU-wide measures, Bovine Spong",
-    "raw_output": "of Fischler, EU-wide measures, Bovine Spong",
+    "probability": 0.7417203046738507,
+    "mention_index": 1,
+    "prediction": "of Fischler, EU-wide measures, Bovine Spong",
     "status": "valid"
   },
   {
     "sentence_id": 8,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of Fischler, EU-wide measures after reports from Britain and France",
-    "raw_output": "of Fischler, EU-wide measures after reports from Britain and France",
+    "probability": 0.8475628250848065,
+    "mention_index": 1,
+    "prediction": "of Fischler, EU-wide measures after reports from Britain and France",
     "status": "valid"
   },
   {
     "sentence_id": 9,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of But Fischler in European Union",
-    "raw_output": "of But Fischler in European Union",
+    "probability": 0.15735337847428815,
+    "mention_index": 1,
+    "prediction": "of But Fischler in European Union",
     "status": "valid"
   },
   {
     "sentence_id": 9,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of But Fischler in Agriculture.",
-    "raw_output": "of But Fischler in Agriculture.",
+    "probability": 0.6612098206229754,
+    "mention_index": 1,
+    "prediction": "of But Fischler in Agriculture.",
     "status": "valid"
   },
   {
     "sentence_id": 9,
     "label": "LOC",
-    "mention_index": 1,
     "mention": "of But Fischler",
-    "raw_output": "of But Fischler",
+    "probability": 0.0009330417099045436,
+    "mention_index": 1,
+    "prediction": "of But Fischler",
     "status": "valid"
   },
   {
     "sentence_id": 9,
     "label": "LOC",
-    "mention_index": 2,
     "mention": "ing But Fischler",
-    "raw_output": "ing But Fischler",
+    "probability": 0.0012117003160896525,
+    "mention_index": 2,
+    "prediction": "ing But Fischler",
     "status": "valid"
   },
   {
     "sentence_id": 10,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "for: Fischler",
-    "raw_output": "for: Fischler",
+    "probability": 3.7831165651720474e-05,
+    "mention_index": 1,
+    "prediction": "for: Fischler",
     "status": "valid"
   },
   {
     "sentence_id": 10,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of Loyola de Palacio in Spanish Farm Minister Loyola de",
-    "raw_output": "of Loyola de Palacio in Spanish Farm Minister Loyola de",
+    "probability": 0.9613944436184991,
+    "mention_index": 1,
+    "prediction": "of Loyola de Palacio in Spanish Farm Minister Loyola de",
     "status": "valid"
   },
   {
     "sentence_id": 12,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of Fischler 's proposal",
-    "raw_output": "of Fischler 's proposal",
+    "probability": 0.0006057094371062647,
+    "mention_index": 1,
+    "prediction": "of Fischler 's proposal",
     "status": "valid"
   },
   {
     "sentence_id": 12,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of France and Britain backed Fischler 's proposal .",
-    "raw_output": "of France and Britain backed Fischler 's proposal .",
+    "probability": 0.907498259321547,
+    "mention_index": 1,
+    "prediction": "of France and Britain backed Fischler 's proposal .",
     "status": "valid"
   },
   {
     "sentence_id": 13,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of The EU 's scientific veterinary and multidisciplinary comm",
-    "raw_output": "of The EU 's scientific veterinary and multidisciplinary comm",
+    "probability": 0.9721452457871024,
+    "mention_index": 1,
+    "prediction": "of The EU 's scientific veterinary and multidisciplinary comm",
     "status": "valid"
   },
   {
     "sentence_id": 14,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of Sheep have long been known to contract scrapie in BSE",
-    "raw_output": "of Sheep have long been known to contract scrapie in BSE",
+    "probability": 0.8866372124222688,
+    "mention_index": 1,
+    "prediction": "of Sheep have long been known to contract scrapie in BSE",
     "status": "valid"
   },
   {
     "sentence_id": 15,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of British farmers denied on Thursday there was any danger to human",
-    "raw_output": "of British farmers denied on Thursday there was any danger to human",
+    "probability": 0.9093647626457045,
+    "mention_index": 1,
+    "prediction": "of British farmers denied on Thursday there was any danger to human",
     "status": "valid"
   },
   {
     "sentence_id": 15,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of British farmers denied on Thursday in The Guardian.",
-    "raw_output": "of British farmers denied on Thursday in The Guardian.",
+    "probability": 0.2415008375655865,
+    "mention_index": 1,
+    "prediction": "of British farmers denied on Thursday in The Guardian.",
     "status": "valid"
   },
   {
     "sentence_id": 16,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of \" What we have to be extremely careful of is how other countries are",
-    "raw_output": "of \" What we have to be extremely careful of is how other countries are",
+    "probability": 0.9299146462166685,
+    "mention_index": 1,
+    "prediction": "of \" What we have to be extremely careful of is how other countries are",
     "status": "valid"
   },
   {
     "sentence_id": 16,
     "label": "PER",
-    "mention_index": 1,
     "mention": "in Welsh National Farmers ' Union ( NFU ) chairman John",
-    "raw_output": "in Welsh National Farmers ' Union ( NFU ) chairman John",
+    "probability": 0.8938529697745136,
+    "mention_index": 1,
+    "prediction": "in Welsh National Farmers ' Union ( NFU ) chairman John",
     "status": "valid"
   },
   {
     "sentence_id": 17,
     "label": "ORG",
-    "mention_index": 1,
     "mention": "of \"Bonn\" in \"Consumer confidence collapsed in March after",
-    "raw_output": "of \"Bonn\" in \"Consumer confidence collapsed in March after",
+    "probability": 0.7344926334242422,
+    "mention_index": 1,
+    "prediction": "of \"Bonn\" in \"Consumer confidence collapsed in March after",
     "status": "valid"
   },
   {
     "sentence_id": 17,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of Bonn in Public Health",
-    "raw_output": "of Bonn in Public Health",
+    "probability": 3.3401868063419195e-05,
+    "mention_index": 1,
+    "prediction": "of Bonn in Public Health",
     "status": "valid"
   },
   {
     "sentence_id": 17,
     "label": "MISC",
-    "mention_index": 1,
     "mention": "of \"Bonn\" in \"Bonn\"",
-    "raw_output": "of \"Bonn\" in \"Bonn\"",
+    "probability": 0.005716987623887145,
+    "mention_index": 1,
+    "prediction": "of \"Bonn\" in \"Bonn\"",
     "status": "valid"
   },
   {
     "sentence_id": 17,
     "label": "MISC",
-    "mention_index": 2,
     "mention": "of Bonn in the text above.",
-    "raw_output": "of Bonn in the text above.",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 18,
-    "label": "ORG",
-    "mention_index": 1,
-    "mention": "of Germany imported 47,600 sheep from Britain last year",
-    "raw_output": "of Germany imported 47,600 sheep from Britain last year",
+    "probability": 0.00014797266171984178,
+    "mention_index": 2,
+    "prediction": "of Bonn in the text above.",
     "status": "valid"
   },
   {
     "sentence_id": 18,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of Germany imported 47,600 sheep from Britain last year",
-    "raw_output": "of Germany imported 47,600 sheep from Britain last year",
-    "status": "valid"
-  },
-  {
-    "sentence_id": 19,
-    "label": "ORG",
+    "probability": 0.9909174526800365,
     "mention_index": 1,
-    "mention": "of It brought in 4,275 tonnes of British m",
-    "raw_output": "of It brought in 4,275 tonnes of British m",
+    "prediction": "of Germany imported 47,600 sheep from Britain last year",
     "status": "valid"
   },
   {
     "sentence_id": 19,
     "label": "PER",
-    "mention_index": 1,
     "mention": "of It brought in 4,275 tonnes of British m",
-    "raw_output": "of It brought in 4,275 tonnes of British m",
+    "probability": 0.99334358622023,
+    "mention_index": 1,
+    "prediction": "of It brought in 4,275 tonnes of British m",
     "status": "valid"
   }
 ]

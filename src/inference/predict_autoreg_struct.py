@@ -11,7 +11,7 @@ from datasets import load_dataset
 import json
 from pathlib import Path
 
-def load_model_and_tokenizer(model_name,checkpoint_dir): #checkpoint_dir is address of checkspoint which we will use as weights to predict while training is in process
+def load_model_and_tokenizer(model_name,adapter_dir): 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     #if tokenize have no pad tokens
@@ -20,7 +20,7 @@ def load_model_and_tokenizer(model_name,checkpoint_dir): #checkpoint_dir is addr
 
     #CausalLM means LM that can only look backwards to predict enxt token
     model = AutoModelForCausalLM.from_pretrained(model_name,dtype=torch.float32)
-    model = PeftModel.from_pretrained(model, checkpoint_dir)
+    model = PeftModel.from_pretrained(model, adapter_dir)
 
     model.eval()
 
@@ -121,7 +121,7 @@ def main():
         default="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
     )
     parser.add_argument(
-        "--checkpoint_dir",
+        "--adapter_dir",
         type=str,
         required=True,
         help="Path to a trained LoRA checkpoint"
@@ -132,11 +132,6 @@ def main():
         default="results/inference_autoreg_struct.jsonl",
     )
 
-    parser.add_argument(
-        "--num_examples",
-        type=int,
-        default=5,
-    )
 
     parser.add_argument(
         "--max_new_tokens",
@@ -145,7 +140,7 @@ def main():
     )
 
     args=parser.parse_args()
-    model, tokenizer = load_model_and_tokenizer(model_name=args.model_name,checkpoint_dir=args.checkpoint_dir)
+    model, tokenizer = load_model_and_tokenizer(model_name=args.model_name,adapter_dir=args.adapter_dir)
 
     
     raw_examples =loadDataset() 

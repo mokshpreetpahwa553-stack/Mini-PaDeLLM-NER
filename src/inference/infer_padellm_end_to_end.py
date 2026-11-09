@@ -11,6 +11,13 @@ from datasets import load_dataset
 import re
 import json
 from src.data.padellm_data_builder import get_ordinal
+import math
+import statistics
+import torch
+import torch.nn.functional as F
+from src.data.padellm_deduplication import de_deplication
+
+
 def load_model_and_tokenizer(model_name, adapter_dir):
     tokenizer=AutoTokenizer.from_pretrained(model_name)
 
@@ -90,16 +97,25 @@ def generate_batch(model,tokenizer,prompts,batch_size,max_new_tokens):
                 **inputs,
                 max_new_tokens=max_new_tokens,
                 do_sample=False,
+                output_scores=True,
+                return_dict_in_generate=True,
                 pad_token_id=tokenizer.pad_token_id
             )
 
-        new_tokens = generated[:, inputs["input_ids"].shape[1]:]
-        decoded = tokenizer.batch_decode(
-            new_tokens,
-            skip_special_tokens=True
-        )
+        prompt_len=inputs["input_ids"].shape[1]
+        new_tokens_ids = generated.sequences[:, prompt_len:]
 
-        outputs.extend([text.strip() for text in decoded])
+        for example_idx in range(len(batch_prompts)):
+            generated_text=tokenizer.decode(new_tokens_ids[example_idx],
+                                            skip_special_tokens=True).strip()
+
+            probability =compute_probability_of_predictions(generated.scores,new_tokens_ids[example_idx],example_idx)
+    
+
+            outputs.append({
+                "probability":probability,
+                "prediction": generated_text
+            })
 
     return outputs
 
@@ -119,11 +135,13 @@ def run_count_model(c_model,c_tokenizer,count_examples,args):
 
     for example, raw_output in zip(count_examples, raw_outputs):
         label = example["label"]
-        count, status = parse_count_prediction(raw_output)
+        prediction=raw_output["prediction"]
+        count, status = parse_count_prediction(prediction)
 
         predicted_counts[label]= {
             "count": count,
-            "raw_output": raw_output,
+            "raw_output": prediction,
+            "probability":raw_output["probability"],
             "status": status
         }
 
@@ -139,24 +157,45 @@ def run_mention_model(m_model,m_tokenizer,mention_examples,args):
         m_tokenizer,
         prompts,
         batch_size=args.batch_size,
-        max_new_tokens=args.max_new_tokens
+        max_new_tokens=args.max_new_tokens,
     )
 
     mention_predictions = []
 
     for example, raw_output in zip(mention_examples, raw_outputs):
-        mention, status = parse_mention_prediction(raw_output)
+        probability = raw_output["probability"]
+        predicted_text=raw_output["prediction"]
+        mention, status = parse_mention_prediction(predicted_text)
 
         mention_predictions.append({
             "sentence_id": example["sentence_id"],
             "label": example["label"],
             "mention_index": example["mention_index"],
             "mention": mention,
-            "raw_output": raw_output,
-            "status": status
+            "prediction": predicted_text,
+            "status": status,
+            "probability":probability
         })
 
     return mention_predictions
+
+'''it is sequential probability, so like scores contain prob in sequence of each token in token_ids, example_idx 
+index of example for whose output we are computing prob for '''
+def compute_probability_of_predictions(scores,token_ids,example_idx):
+    log_probs=[]
+    for step,token_id in enumerate(token_ids):
+        prob=scores[step][example_idx]
+        log_prob=F.log_softmax(prob,dim=-1)[token_id].item()
+        log_probs.append(log_prob)
+
+    if len(log_probs)==0:
+        return 0.0
+
+    avg_log_prob = statistics.mean(log_probs)
+
+    return math.exp(avg_log_prob)
+
+
 def parse_count_prediction(text):
     text=text.strip()
 
@@ -258,8 +297,9 @@ def main():
                 })
 
         predicted_mentions=run_mention_model(models["mention_model"],models["mention_tokenizer"],mention_examples,args)
-
+        predicted_mentions=de_deplication(predicted_mentions)
         all_predictions.extend(predicted_mentions)
+
 
 
     with open(args.output_path, "w", encoding="utf-8") as f:

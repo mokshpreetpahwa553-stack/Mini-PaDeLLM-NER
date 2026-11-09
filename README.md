@@ -362,16 +362,134 @@ prompts.
 The end-to-end pipeline works correctly. It connects count prediction,
 mention prompt construction, mention generation, and JSON output.
 
-However, because both LoRA adapters were trained only on a small
-overfit set, the generated mentions on unseen validation sentences
-are often incomplete or malformed. For example, some outputs contain
-sentence fragments instead of clean entity mentions.
+## Project: PaDeLLM NER Counting Pipeline
+Today, the project was separated into individual training and inference
+scripts for two LoRA adapted TinyLlama components:
 
-This is expected at this stage. The purpose of this run was to test
-that the full PaDeLLM pipeline works from count prediction to final
-mention generation.
+1. PaDeLLM Data Builder
+2. PaDeLLM Entity Counter
 
-The next step is to train the count-prediction and mention-generation
-models on a larger subset of the CoNLL-2003 training data. After that,
-the end-to-end pipeline can be evaluated using entity-level precision,
-recall, and F1.
+The overall pipeline is:
+
+CoNLL sentence
+-> Data-builder adapter
+-> Entity mentions / structured output
+-> Counter adapter
+-> Predicted entity counts
+-> Comparison with gold counts
+
+## Scripts Prepared
+
+### Data Builder
+
+Training script:
+
+src/training/train_padellm_data_builder.py
+
+Inference script:
+
+src/inference/pred_padellm_data_builder.py
+
+Training output directory:
+
+results/padellm_data_builder
+
+Inference output file:
+
+results/padellm_data_builder/predictions.jsonl
+
+### Counter
+
+Training script:
+
+src/training/train_padellm_counter.py
+
+Inference script:
+
+src/inference/pred_padellm_counter.py
+
+Training output directory:
+
+results/padellm_counter
+
+Inference output file:
+
+results/adellm_counter/predictions.jsonl
+
+## Data Split Policy
+
+Training uses the CoNLL-2003 training split:
+
+load_dataset("lhoestq/conll2003", split="train")
+
+Inference and evaluation use the validation split:
+
+load_dataset("lhoestq/conll2003", split="validation")
+
+The validation split is not used during training.
+
+## Deduplication
+Deduplication is applied after inference in the end-to-end evaluation
+pipeline.
+
+After generating predictions for the first 20 validation examples,
+duplicate prediction records are removed before further analysis or
+evaluation.
+
+This prevents identical prediction entries from being counted multiple
+times in later evaluation or inspection.
+
+## Model and LoRA Configuration
+
+Base model:
+
+TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+LoRA configuration:
+
+r = 8
+lora_alpha = 16
+lora_dropout = 0.05
+target_modules = ["q_proj", "v_proj"]
+bias = "none"
+task_type = "CAUSAL_LM"
+
+Only LoRA adapter parameters are trained; the base TinyLlama weights remain frozen.
+
+## Training Settings
+
+Both training scripts use:
+
+num_train_epochs = 2
+learning_rate = 1e-4
+per_device_train_batch_size = 1
+gradient_accumulation_steps = 1
+max_steps = -1
+
+Because max_steps is -1, training is controlled by num_train_epochs.
+
+## Inference Settings
+
+Data-builder inference:
+
+max_new_tokens = 128
+
+Counter inference:
+
+max_new_tokens = 16
+
+The counter needs only a small number of generated tokens because its
+expected output is a count.
+
+## Important Design Decision
+
+The data-builder adapter and counter adapter are tested separately before
+being connected in an end-to-end pipeline.
+
+This makes it easier to identify whether errors come from:
+
+- Entity-mention extraction
+- Counter prediction
+- Prompt formatting
+- Output parsing
+- Adapter loading
