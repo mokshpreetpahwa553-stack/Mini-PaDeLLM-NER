@@ -362,7 +362,7 @@ prompts.
 The end-to-end pipeline works correctly. It connects count prediction,
 mention prompt construction, mention generation, and JSON output.
 
-## Project: PaDeLLM NER Counting Pipeline
+## PaDeLLM NER Counting Pipeline
 Today, the project was separated into individual training and inference
 scripts for two LoRA adapted TinyLlama components:
 
@@ -493,3 +493,144 @@ This makes it easier to identify whether errors come from:
 - Prompt formatting
 - Output parsing
 - Adapter loading
+
+
+## Onestep Training and Infernece
+
+I implemented and validated the OneStep NER pipeline using a causal language model fine-tuned with LoRA.
+
+In OneStep NER, I converted each sentence into four separate examples, one for each entity label:
+
+- `ORG`
+- `PER`
+- `MISC`
+- `LOC`
+
+For each label, I asked the model to extract only the mentions belonging to that label.
+
+### Example
+
+```text
+Input: Apple hired John Smith in Dublin
+Task:  Find all PER mentions.
+Output: John Smith
+```
+
+If a label has multiple mentions:
+
+```text
+Input: Find all MISC mentions.
+Output: German <sep> British
+```
+
+If a label has no mentions:
+
+```text
+Output: <none>
+```
+
+## OneStep Data Builder
+
+I created logic to convert CoNLL-style BIO-tagged sentences into OneStep examples.
+
+For every sentence, I created four examples:
+
+- Find all `ORG` mentions.
+- Find all `PER` mentions.
+- Find all `MISC` mentions.
+- Find all `LOC` mentions.
+
+Each example contains:
+
+- `input`
+- `task`
+- `output`
+- `format`
+- `sentence_id`
+
+Example:
+
+```json
+{
+  "input": "Apple hired John Smith in Dublin",
+  "task": "Find all PER mentions.",
+  "output": "John Smith",
+  "format": "onestep",
+  "sentence_id": 0
+}
+```
+
+### Overfit Training Script
+- Loads TinyLlama.
+- Applies LoRA fine-tuning.
+- Creates OneStep training examples.
+- Masks prompt tokens using `-100`.
+- Trains only on the target output and EOS token.
+- Saves the trained LoRA adapter.
+- Tests whether the model can reproduce the exact training targets.
+
+### 3. Overfit Test Result
+
+The overfit test was successful.
+
+```text
+Overfit test: 20/20 exact matches
+```
+
+The model correctly reproduced:
+
+- Single mentions
+- Multiple mentions separated by `<sep>`
+- `<none>` outputs
+- `ORG`, `PER`, `MISC`, and `LOC` entity types
+
+## Saved Overfit Model
+
+I saved the overfit LoRA adapter to:
+
+```text
+results/onestep_overfit
+```
+
+## What the Overfit Test Proves
+
+The successful 20/20 overfit result confirms that:
+
+- The OneStep data format is correct.
+- The prompt format is consistent.
+- Tokenization works correctly.
+- Loss masking works correctly.
+- LoRA fine-tuning works.
+- Model generation works.
+- The model can produce the expected output format.
+- The model understands `<none>` and `<sep>`.
+
+
+### 1. Run Full OneStep Training
+
+```bash
+python -m src.training.train_onestep \
+  --num_epochs 2 \
+  --output_dir models/onestep_model
+```
+
+### 2. Run OneStep Inference on the Validation Set
+
+```bash
+python -m src.inference.pred_onestep \
+  --model_name TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
+  --adapter_dir results/training_onestep \
+  --output_file results/inference_onestep.jsonl \
+  --max_new_tokens 50
+```
+
+### 3.OneStep Evaluation Script
+
+- Load inference results.
+- Group predictions by `sentence_id`.
+- Use `task` to determine the entity label.
+- Parse generated mentions.
+- Convert predictions into `(label, mention)` tuples.
+- Compare predictions with gold mentions.
+- Compute micro precision, recall, and F1.
+

@@ -43,7 +43,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer,Trainer,TrainingArguments
 from peft import LoraConfig, get_peft_model
 from torch.utils.data import Dataset
-from src.data.padellm_data_builder import build_padellm_examples
+from src.data.autoreg_struct_data_builder import build_autoreg_struct_examples
 from datasets import load_dataset
 import time
 
@@ -132,7 +132,7 @@ def create_overfit_examples(raw_examples,tokenizer,num_examples):
     training_examples=[]    
 
     for sentence_id,raw_example in enumerate(raw_examples):
-        built_examples=build_padellm_examples(tokens=raw_example["tokens"],bio_tags=raw_example["bio_tags"],sentence_id=sentence_id)
+        built_examples=build_autoreg_struct_examples(tokens=raw_example["tokens"],bio_tags=raw_example["bio_tags"],sentence_id=sentence_id)
 
         
         for built_example in built_examples:

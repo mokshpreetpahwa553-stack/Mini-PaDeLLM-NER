@@ -1,4 +1,4 @@
-from src.inference.output_parser_autoreg_struct import autoreg_parser
+from src.data.output_parser_autoreg_struct import autoreg_parser
 
 
 def test_valid_output_with_multiple_mentions():

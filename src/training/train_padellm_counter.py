@@ -52,7 +52,7 @@ def load_model_and_tokenizer(model_name):
 
     #CausalLM means LM that can only look backwards to predict enxt token
     model = AutoModelForCausalLM.from_pretrained(model_name,dtype=torch.float32)
-
+    model.config.pad_token_id = tokenizer.pad_token_id
     lora_config = LoraConfig(
         r=8,   # r means LoRA rank, higher r means more trainable parameters and more capacity
         lora_alpha=16,   #LoRA scaling factor, controls how strongly the LoRA update affects the frozen base weights

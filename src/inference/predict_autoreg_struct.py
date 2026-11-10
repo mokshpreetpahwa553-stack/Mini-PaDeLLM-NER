@@ -94,6 +94,7 @@ def generate_predictions(model, tokenizer, raw_examples,max_new_tokens=256):
             ).strip()
 
             result["sentence_id"]=sentence_id
+            result["prompt"]=prompt_text
             result["tokens"]=raw_example["tokens"]
             result["bio_tags"]=raw_example["bio_tags"]
             result["generation"]=generated_pred
@@ -145,8 +146,6 @@ def main():
     
     raw_examples =loadDataset() 
 
-    if args.num_examples is not None:
-        raw_examples = raw_examples[: args.num_examples]
    
     print(f"Running inference on {len(raw_examples)} validation sentences.")
    

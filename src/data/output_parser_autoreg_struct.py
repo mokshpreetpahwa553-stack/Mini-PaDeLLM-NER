@@ -45,7 +45,7 @@ def autoreg_parser(output):
     #checking order of labels
     for i in range(len(positions)-1):
         if positions[i]>=positions[i+1]:
-            return {"status":"malformed","reason":"order_mismatch"}
+            return {"status":"malformed","entities":"[]"}
 
     dic={}
     dic["status"]="valid"
@@ -54,8 +54,8 @@ def autoreg_parser(output):
         lst=[]
         label=label_order[i]
         value_start=positions[i]+len(label)+1 #+1 for :
-        if i < len(positions) - 1:
-            value_end=positions[i + 1]
+        if i<len(positions)-1:
+            value_end=positions[i+1]
         else:
             value_end=len(output)
 
@@ -70,7 +70,7 @@ def autoreg_parser(output):
         elif value=="":
             return {
             "status": "malformed",
-            "reason": "empty_entity_value"
+            "entities": []
             }
         else:
             lst = value.split("<sep>")

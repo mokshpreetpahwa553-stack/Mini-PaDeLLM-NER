@@ -14,7 +14,7 @@ import argparse
 import json
 from collections import defaultdict
 from pathlib import Path
-from src.inference.output_parser_autoreg_struct import parse_prediction
+from src.data.output_parser_autoreg_struct import parse_prediction
 
 
 def load_jsonl(path):
