@@ -52,7 +52,7 @@ def load_model_and_adapter(model_name,adapter_dir):
         tokenizer.pad_token = tokenizer.eos_token
 
     #CausalLM means LM that can only look backwards to predict enxt token
-    model = AutoModelForCausalLM.from_pretrained(model_name,dtype=torch.float32)
+    model = AutoModelForCausalLM.from_pretrained(model_name,dtype=torch.float32,device_map="cuda")
 
     model = PeftModel.from_pretrained(model,adapter_dir)
     model.eval()

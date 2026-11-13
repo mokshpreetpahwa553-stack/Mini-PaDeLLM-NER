@@ -44,8 +44,9 @@ def evaluation(predictions):
     parse_failures,count_correct=0,0
     total_sentences=len(predictions)
     all_records=[]
-
+    failed_parse=[] #it will keep record of predictions that faield parsing
     for prediction in predictions:
+        
         record={}
         pred=prediction["generation"]
         gold_mentions=bio_to_mention_conv(prediction["tokens"],prediction["bio_tags"])
@@ -55,15 +56,16 @@ def evaluation(predictions):
 
         parse_success = True if status=="valid" else False
         if not parse_success:
+            failed_parse.append(prediction["sentence_id"])
             parse_failures+=1
-        predicted_entities=autoreg_parser(entities)
+        predicted_entities=autoreg_parser_to_predictions(entities)
         metrics = compute_micro_entity_metrics(gold_mentions,predicted_entities)
 
         total_true_positives += metrics["true_positives"]
         total_false_positives += metrics["false_positives"]
         total_false_negatives += metrics["false_negatives"]
-
-        if len(gold_mentions)==len(entities):
+        
+        if len(gold_mentions)==len(predicted_entities):
             count_correct+=1
 
         record={
@@ -95,6 +97,8 @@ def evaluation(predictions):
         "count_accuracy": count_correct/total_sentences if total_sentences>0 else 0.0
         }
 
+    print(f"---------------\n{failed_parse}\n---------------- \n")
+
     return all_records,metrics
 
     
@@ -106,20 +110,19 @@ def main():
     parser.add_argument(
         "--input_file",
         type=str,
-        required=True,
-        help="Raw AutoReg inference JSONL file"
+        default="results/inference_autoreg_struct.jsonl"
     )
 
     parser.add_argument(
         "--parsed_output_file",
         type=str,
-        default="results/parsed_autoreg_struct.jsonl"
+        default="results/parsed_inferenced_autoreg_struct.jsonl"
     )
 
     parser.add_argument(
         "--metrics_output_file",
         type=str,
-        default="results/metrics_autoreg_struct.json"
+        default="results/metrics_inferenced_autoreg_struct.json"
     )
 
     args = parser.parse_args()

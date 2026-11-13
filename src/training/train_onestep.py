@@ -50,7 +50,7 @@ def load_model_and_tokenizer(model_name):
         tokenizer.pad_token = tokenizer.eos_token
 
     #CausalLM means LM that can only look backwards to predict enxt token
-    model = AutoModelForCausalLM.from_pretrained(model_name,dtype=torch.float32)
+    model = AutoModelForCausalLM.from_pretrained(model_name,dtype=torch.float32,device_map="cuda")
     model.config.pad_token_id = tokenizer.pad_token_id
     
     lora_config = LoraConfig(

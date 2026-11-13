@@ -1,1 +1,2 @@
 run_id,date,model,dataset,train_size,val_size,test_size,method,precision,recall,f1,avg_latency_ms,tokens_generated,speedup_vs_ar,notes
+ar_struct_dev_001,2026-11-3,TinyLlama-1.1B-Chat-v1.0,CoNLL-2003,14041,3250,3453,AutoREg-Struct,0.9446,0.9246,0.9345, , ,1.0, CoNLL-2003, 6 parse fails(truncation at 128) = 98 FN = 21.9% of FN;upper limit F1 ~94.3; count match 95.1% 

@@ -1,0 +1,11 @@
+{
+  "precision": 0.9446354883081155,
+  "recall": 0.9246045102659037,
+  "f1": 0.9345126722231671,
+  "true_positives": 5494,
+  "false_positives": 322,
+  "false_negatives": 448,
+  "number_sentences": 3250,
+  "parse_failure_rate": 0.0018461538461538461,
+  "count_accuracy": 0.9513846153846154
+}

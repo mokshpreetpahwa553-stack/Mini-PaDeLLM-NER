@@ -38,17 +38,17 @@ def autoreg_parser(output):
         label_position=output.find(marker,position)
 
         if label_position==-1:
-            return {"status":"malformed","reason":"missing_labels"}
+            return {"status":"malformed","entities":{}}
         positions.append(label_position)
         position=label_position+1
 
     #checking order of labels
     for i in range(len(positions)-1):
         if positions[i]>=positions[i+1]:
-            return {"status":"malformed","entities":"[]"}
+            return {"status":"malformed","entities":{}}
 
     dic={}
-    dic["status"]="valid"
+    dic["status"]="valid" 
     entities={}
     for i,idx in enumerate(positions):
         lst=[]

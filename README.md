@@ -634,3 +634,45 @@ python -m src.inference.pred_onestep \
 - Compare predictions with gold mentions.
 - Compute micro precision, recall, and F1.
 
+
+### Setup
+- Model: TinyLlama-1.1B-Chat-v1.0 + LoRA adapter 
+- Data: CoNLL-2003 validation split (`split="validation"`)
+- Decoding: greedy, `max_new_tokens=128` 
+
+
+### How I scored it
+- Micro P/R/F1 over (label, mention-string) pairs. I add up TP/FP/FN over all sentences and compute F1 once at the end (not an average of per-sentence F1).
+- Gold pairs come from the BIO tags, using the same converter as in training.
+- If the parser can't parse an output, I treat that sentence's prediction as **empty**, so all its gold mentions count as false negatives. This is strict on purpose.
+
+### Results (dev)
+| Metric | Value |
+|---|---|
+| Precision | 94.46 |
+| Recall | 92.46 |
+| **F1** | **93.45** |
+| TP / FP / FN | 5494 / 322 / 448 |
+| Gold mentions | 5942 |
+| Parse failures | 6 / 3250 (0.18%) |
+| Total mention count matches gold | 95.1% of sentences |
+
+### Sanity checks I did
+- Gold total = 5,942, which is the standard CoNLL-2003 dev count, so the BIO converter and split are right.
+- Recomputed P and R by hand from TP/FP/FN, and they match.
+- **Hand check:** I scored 24 sentences by hand (dev ids 1541–1562, plus 2184 and 2185) and ran the pipeline on the same records. Expected TP 44, FP 2, FN 24, with 1 parse failure, and the script gave exactly that. The 24 records are frozen in `tests/fixtures/test_hand_check_autoreg_evaluation.jsonl`.
+  - **Rule:** after any change to the parser or metric,rerun the hand check script. It must still give 44 / 2 / 24.
+
+### What I found
+**1. All 6 parse failures are truncation.**
+Failed ids: 2184, 2385, 2594, 2595, 2616, 2617. Four of them come in consecutive pairs, because they are crowded sentences The model hits the 128-token cap and gets cut off. 
+- These 6 sentences alone give **98 FN = 21.9% of all FN**.
+- If they had not been truncated (upper bound, assuming all 98 were correct): F1 would be about 94.3, and the P−R gap would drop from 2.0 to about 0.45 points.
+- So most of the "recall < precision" gap comes from truncation on crowded sentences, not from the model being bad at finding entities.
+
+**2. Comparing with the paper.**
+The paper reports 91.87 F1 for AutoReg-Struct, but that is a 7B model on the **test** set. My 93.45 is on **dev**, which is usually easier on CoNLL. I expect my test score to be lower. This is not a like-for-like comparison yet.
+
+### Deviations from the paper (so far)
+- 1.1B model with LoRA, not a 7B full fine-tune
+- `max_new_tokens=128` (paper allows 512)
